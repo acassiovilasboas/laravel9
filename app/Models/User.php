@@ -41,4 +41,25 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function get(string $search = '')
+    {
+        //        $users = $this->model('name', 'LIKE', "%{$request->search}%")->get();
+
+        $users = $this->where(function ($query) use ($search) {
+            if ($search) {
+                $query->where('email', $search); // email = palavra pesquisada
+                $query->orWhere('name', 'LIKE', "%{$search}%"); // ou o nome contenha a plavra pesquisada
+            }
+        })->get();
+
+        return $users;
+    }
+
+    // criar o relacionamento entre as tabelas
+    public function comments()
+    {
+//        return $this->hasMany(Comment::class, 'user_id', 'id');
+        return $this->hasMany(Comment::class); //por default os dados acima sao setados.
+    }
 }

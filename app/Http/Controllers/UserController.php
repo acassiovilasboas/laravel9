@@ -20,17 +20,13 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-//        $users = $this->model('name', 'LIKE', "%{$request->search}%")->get();
-        $search = $request->search;
-        $users = $this->model->where(function ($query) use ($search) {
-            if ($search) {
-                $query->where('email', $search); // email = palavra pesquisada
-                $query->orWhere('name', 'LIKE', "%{$search}%"); // ou o nome contenha a plavra pesquisada
-            }
-        })->get();
+        $users = $this->model->get(search: $request->search ?? '');
+//        $users = $this
+//            ->model
+//            ->get(search: $request
+//                ->get('search', ''));
 
         return view('users.index', compact('users'));
-
     }
 
     public function show($id)
