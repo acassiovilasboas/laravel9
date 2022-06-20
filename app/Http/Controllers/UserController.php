@@ -8,13 +8,21 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+
+    protected $model;
+
+    public function __construct(User $user)
+    {
+        $this->model = $user;
+    }
+
     // queries devem ficar nos repositories
-    
+
     public function index(Request $request)
     {
-//        $users = User::where('name', 'LIKE', "%{$request->search}%")->get();
+//        $users = $this->model('name', 'LIKE', "%{$request->search}%")->get();
         $search = $request->search;
-        $users = User::where(function ($query) use ($search) {
+        $users = $this->model->where(function ($query) use ($search) {
             if ($search) {
                 $query->where('email', $search); // email = palavra pesquisada
                 $query->orWhere('name', 'LIKE', "%{$search}%"); // ou o nome contenha a plavra pesquisada
@@ -27,8 +35,8 @@ class UserController extends Controller
 
     public function show($id)
     {
-        // $user = User::where('id', $id)->first();
-        if(!$user = User::find($id))
+        // $user = $this->model('id', $id)->first();
+        if(!$user = $this->model->find($id))
             return redirect()->route('users.index');
 
         return view('users.show', compact('user'));
@@ -44,12 +52,12 @@ class UserController extends Controller
         $data = $request->all();
         $data['password'] = bcrypt($data['password']);
 
-        $user = User::create($data);
+        $user = $this->model->create($data);
 
         // return redirect()->route('users.show', $user->id);
         return redirect()->route('users.index');
 
-        // User::create([
+        // $this->>model->create([
         //     'name' => $request->name,
         //     'email' => $request->email,
         //     'password' => bcrypt($request->password)
@@ -64,14 +72,14 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        if(!$user = User::find($id))
+        if(!$user = $this->model->find($id))
             return redirect()->route('users.index');
         return view('users.edit', compact('user'));
     }
 
     public function update(StoreUpdateUserFromRequest $request, $id)
     {
-        if(!$user = User::find($id))
+        if(!$user = $this->model->find($id))
             return redirect()->route('users.index');
 
         $data = $request->only('name', 'email');
@@ -85,7 +93,7 @@ class UserController extends Controller
 
     public function delete($id)
     {
-        if(!$user = User::find($id))
+        if(!$user = $this->model->find($id))
             return redirect()->route('users.index');
 
         $user->delete();
